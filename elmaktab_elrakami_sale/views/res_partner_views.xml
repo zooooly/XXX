@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.ui.view" id="res_partner_form_inherit">
+        <field name="name">res.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vat']" position="before">
+                <field name="customer_rank" invisible="1"/>
+                <field name="customer_type" required="1" attrs="{'invisible': [('customer_rank','&lt;=', 0)]}"/>
+                <field name="customer_code" attrs="{'invisible': [('customer_rank','&lt;=', 0)]}"/>
+                <field name="customer_code_readonly" invisible="1"/>
+            </xpath>
+            <field name="phone" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <field name="mobile" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <field name="property_product_pricelist" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <field name="property_supplier_payment_term_id" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <field name="street" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <field name="street2" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <field name="city" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <field name="state_id" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <field name="zip" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <field name="country_id" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_res_partner_filter_inherit">
+        <field name="name">res.partner.select.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="customer_code" string="Code"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
