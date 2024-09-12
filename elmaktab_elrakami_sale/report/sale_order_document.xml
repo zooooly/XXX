@@ -1,0 +1,338 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <template id="sale.report_saleorder_document">
+        <div class="row" style="border-bottom: 1px solid #4a4f59;">
+            <div class="col-6">
+                <img t-if="doc.company_id.logo" style="width: 150px;" t-att-src="image_data_uri(doc.company_id.logo)"
+                     alt="Company Logo"/>
+            </div>
+
+            <div class="col-6 text-end text-muted">
+                <div style="font-size:12.0pt; line-height:1.5">
+                    <b>
+                        <span class="text-capitalize" t-esc="doc.company_id.name"/>
+                    </b>
+                </div>
+                <div style="font-size:11.0pt; line-height:1.5">
+                    <b>
+                        <span class="text-capitalize" t-esc="doc.company_id.street"/>
+                    </b>
+                </div>
+                <div style="font-size:11.0pt; line-height:1.5">
+                    <b>
+                        <span class="text-capitalize" t-esc="doc.company_id.state_id.name"/>
+                    </b>
+                </div>
+                <div style="font-size:11.0pt; line-height:1.5">
+                    <b>
+                        <t t-if="doc.company_id.country_id">
+                            <span class="text-capitalize" t-esc="doc.company_id.country_id.name"/>
+                        </t>
+                    </b>
+                </div>
+            </div>
+        </div>
+        <div style="border-bottom: 1px solid #4a4f59c2;"></div>
+
+
+        <div class="text-muted mt-5">
+            <t t-if="doc.partner_id">
+                <div>
+                    <h5 t-esc="doc.partner_id.name"></h5>
+                </div>
+                <div>
+                    <h5 t-esc="doc.partner_id.street"></h5>
+                </div>
+                <div>
+                    <h5 t-esc="doc.partner_id.street2"></h5>
+                </div>
+                <div>
+                    <h5 t-esc="doc.partner_id.city"></h5>
+                </div>
+                <div>
+                    <h5 t-esc="doc.partner_id.state_id.name"></h5>
+                </div>
+                <div>
+                    <h5 t-esc="doc.partner_id.phone"></h5>
+                </div>
+            </t>
+        </div>
+
+        <div class="page">
+            <div class="oe_structure"/>
+
+            <h2 class="mt-4" style="color: #2877E6;">
+                <span t-if="env.context.get('proforma', False) or is_pro_forma">Pro-Forma Invoice #</span>
+                <span t-elif="doc.state in ['draft','sent']">Quotation #</span>
+                <span t-else="">Order #</span>
+                <span t-field="doc.name"/>
+            </h2>
+
+            <div class="row mt-4 mb-4" id="informations">
+                <div t-if="doc.client_order_ref" class="col-auto col-3 mw-100 mb-2" name="informations_reference">
+                    <strong>Your Reference:</strong>
+                    <p class="m-0" t-field="doc.client_order_ref"/>
+                </div>
+                <div t-if="doc.date_order" class="col-auto col-3 mw-100 mb-2" name="informations_date">
+                    <strong t-if="doc.state in ['draft', 'sent']">Quotation Date:</strong>
+                    <strong t-else="">Order Date:</strong>
+                    <p class="m-0 text-muted" t-field="doc.date_order" t-options='{"widget": "date"}'/>
+                </div>
+                <div t-if="doc.validity_date and doc.state in ['draft', 'sent']"
+                     class="col-auto col-3 mw-100 mb-2"
+                     name="expiration_date">
+                    <strong>Expiration:</strong>
+                    <p class="m-0 text-muted" t-field="doc.validity_date"/>
+                </div>
+                <div t-if="doc.user_id.name" class="col-auto col-3 mw-100 mb-2">
+                    <strong>Salesperson:</strong>
+                    <p class="m-0 text-muted" t-field="doc.user_id"/>
+                </div>
+            </div>
+
+            <!-- Is there a discount on at least one line? -->
+            <t t-set="lines_to_report" t-value="doc._get_order_lines_to_report()"/>
+            <t t-set="display_discount" t-value="any(l.discount for l in lines_to_report)"/>
+
+            <table class="table table-sm o_main_table table-bordered mt-4">
+                <!-- In case we want to repeat the header, remove "display: table-row-group" -->
+                <thead style="display: table-row-group" class="text-uppercase">
+                    <tr>
+                        <th name="th_item">Item</th>
+                        <th name="th_part_no">Part NO</th>
+                        <th name="th_description" class="text-start">Description</th>
+                        <th name="th_quantity" class="text-end">Quantity</th>
+                        <th name="th_priceunit" class="text-end">Unit Price</th>
+                        <th name="th_discount" t-if="display_discount" class="text-end">
+                            <span>Disc.%</span>
+                        </th>
+                        <th name="th_taxes" class="text-end">Taxes</th>
+                        <th name="th_subtotal" class="text-end">
+                            <span groups="account.group_show_line_subtotals_tax_excluded">Amount</span>
+                            <span groups="account.group_show_line_subtotals_tax_included">Total Price</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="sale_tbody">
+                    <t t-set="item_count" t-value="0"/>
+                    <t t-set="current_subtotal" t-value="0"/>
+
+                    <t t-foreach="lines_to_report" t-as="line">
+                        <t t-set="item_count" t-value="item_count + 1"/>
+
+                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"
+                           groups="account.group_show_line_subtotals_tax_excluded"/>
+                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_total"
+                           groups="account.group_show_line_subtotals_tax_included"/>
+
+                        <tr t-att-class="'bg-200 fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
+                            <t t-if="not line.display_type">
+                                <td name="td_item" class="text-center">
+                                    <span t-esc="item_count"></span>
+                                </td>
+                                <!--                                    <td name="td_part_number" class="text-center"> <span t-esc="line.part_number"></span> </td>-->
+                                <td name="td_part_number" class="text-center">
+                                    <span t-if="line.order_id.show_part_number">
+                                        <span t-esc="line.part_number"/>
+                                    </span>
+                                    <span t-else="">
+                                        <span t-esc="line.part_number_encrypted"/>
+                                    </span>
+                                </td>
+                                <td name="td_name">
+                                    <span t-field="line.name"/>
+                                </td>
+                                <td name="td_quantity" class="text-end">
+                                    <span t-field="line.product_uom_qty"/>
+                                    <span t-field="line.product_uom"/>
+                                </td>
+                                <td name="td_priceunit" class="text-end">
+                                    <span t-field="line.price_unit"/>
+                                </td>
+                                <td t-if="display_discount" class="text-end">
+                                    <span t-field="line.discount"/>
+                                </td>
+                                <td name="td_taxes" class="text-end">
+                                    <span t-out="', '.join(map(lambda x: (x.description or x.name), line.tax_id))"/>
+                                </td>
+                                <td t-if="not line.is_downpayment" name="td_subtotal" class="text-end o_price_total">
+                                    <span t-field="line.price_subtotal"
+                                          groups="account.group_show_line_subtotals_tax_excluded"/>
+                                    <span t-field="line.price_total"
+                                          groups="account.group_show_line_subtotals_tax_included"/>
+                                </td>
+                            </t>
+                            <t t-elif="line.display_type == 'line_section'">
+                                <td name="td_section_line" colspan="99">
+                                    <span t-field="line.name"/>
+                                </td>
+                                <t t-set="current_section" t-value="line"/>
+                                <t t-set="current_subtotal" t-value="0"/>
+                            </t>
+                            <t t-elif="line.display_type == 'line_note'">
+                                <td name="td_note_line" colspan="99">
+                                    <span t-field="line.name"/>
+                                </td>
+                            </t>
+                        </tr>
+
+                        <t t-if="current_section and (line_last or doc.order_line[line_index+1].display_type == 'line_section') and not line.is_downpayment">
+                            <tr class="is-subtotal text-end">
+                                <td name="td_section_subtotal" colspan="99">
+                                    <strong class="mr16">Subtotal</strong>
+                                    <span
+                                            t-out="current_subtotal"
+                                            t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
+                                    />
+                                </td>
+                            </tr>
+                        </t>
+                    </t>
+                </tbody>
+            </table>
+
+            <div class="clearfix" name="so_total_summary">
+                <div id="total" class="row" name="total">
+                    <div t-attf-class="#{'col-6' if report_type != 'html' else 'col-sm-7 col-md-6'} ms-auto">
+                        <table class="table table-sm table-borderless">
+                            <!-- Tax totals -->
+                            <t t-set="tax_totals" t-value="doc.tax_totals"/>
+                            <t t-call="elmaktab_elrakami_sale.document_tax_totals"/>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div t-if="doc.signature" class="mt-4 ml64 mr4" name="signature">
+                <div class="offset-8">
+                    <strong>Signature</strong>
+                </div>
+                <div class="offset-8">
+                    <img t-att-src="image_data_uri(doc.signature)" style="max-height: 4cm; max-width: 8cm;"/>
+                </div>
+                <div class="offset-8 text-center">
+                    <p t-field="doc.signed_by"/>
+                </div>
+            </div>
+
+            <div>
+                <p t-field="doc.note" name="order_note"/>
+                <p t-if="not is_html_empty(doc.payment_term_id.note)">
+                    <span t-field="doc.payment_term_id.note"/>
+                </p>
+                <p t-if="doc.fiscal_position_id and not is_html_empty(doc.fiscal_position_id.sudo().note)"
+                   id="fiscal_position_remark">
+                    <strong>Fiscal Position Remark:</strong>
+                    <span t-field="doc.fiscal_position_id.sudo().note"/>
+                </p>
+            </div>
+        </div>
+
+        <div class="footer" style="border-top: 2px solid black;">
+            <table width="100%" class="table-borderless">
+                <tbody>
+                    <tr>
+                        <td class="text-end">
+                            <img src="/elmaktab_elrakami_sale/static/src/img/img1.png" width="100" height="60" alt=""/>
+                        </td>
+                        <td class="text-center">
+                            <img src="/elmaktab_elrakami_sale/static/src/img/img2.png" width="150" height="60" alt=""/>
+                        </td>
+                        <td>
+                            <img src="/elmaktab_elrakami_sale/static/src/img/img3.png" width="100" height="80" alt=""/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-end">+218 91-6640444</td>
+                        <td class="text-center">info@almactab.com</td>
+                        <td>http://www.almactab.com</td>
+                    </tr>
+                </tbody>
+            </table>
+            <center>
+                <span>Page:</span>
+                <span class="page"/>
+                /
+                <span class="topage"/>
+            </center>
+        </div>
+    </template>
+
+
+    <template id="sale.report_saleorder">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="sale.report_saleorder_document" t-lang="doc.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+
+    <record id="report_saleorder_document_paperformat" model="report.paperformat">
+        <field name="name">Sale Order</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">32</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">35</field>
+        <field name="dpi">90</field>
+    </record>
+
+
+    <record id="sale.action_report_saleorder" model="ir.actions.report">
+        <field name="paperformat_id" ref="elmaktab_elrakami_sale.report_saleorder_document_paperformat"/>
+    </record>
+
+
+    <template id="document_tax_totals">
+        <!--
+            Generic template to display tax totals in pdf reports.
+            Used by invoices, SO and PO.
+
+            ARGUMENTS:
+            - tax_totals: dict in the form generated by account.move's _get_tax_totals.
+        -->
+        <t t-foreach="tax_totals['subtotals']" t-as="subtotal">
+            <tr class="border-black o_subtotal">
+                <td style="color: #2877E6;">
+                    <strong t-esc="subtotal['name']"/>
+                </td>
+
+                <td class="text-end">
+                    <span
+                            t-att-class="oe_subtotal_footer_separator"
+                            t-esc="subtotal['formatted_amount']"
+                    />
+                </td>
+            </tr>
+
+            <t t-set="subtotal_to_show" t-value="subtotal['name']"/>
+            <t t-call="account.tax_groups_totals"/>
+        </t>
+
+        <t t-if="'formatted_rounding_amount' in tax_totals and tax_totals['rounding_amount'] != 0">
+            <td>Rounding</td>
+            <td class="text-end">
+                <span t-esc="tax_totals['formatted_rounding_amount']"/>
+            </td>
+        </t>
+
+        <!--Total amount with all taxes-->
+        <tr class="border-black o_total" style="background-color: #2877E6; color: white;">
+            <td>
+                <strong>Total</strong>
+            </td>
+            <td class="text-end">
+                <span t-esc="tax_totals['formatted_amount_total_rounded']"
+                      t-if="'formatted_amount_total_rounded' in tax_totals"/>
+                <span t-esc="tax_totals['formatted_amount_total']" t-else=""/>
+            </td>
+        </tr>
+    </template>
+</odoo>
