@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "customsale",
+    'name': "Zouljanaheen Account Custom",
 
     'author': "Malaz",
     'website': "https://www.yourcompany.com",
