@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_elmakteb_so_document">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="o">
+                <t t-if="not company">
+                    <!-- Multicompany -->
+                    <t t-if="company_id">
+                        <t t-set="company" t-value="company_id"/>
+                    </t>
+                    <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                        <t t-set="company" t-value="o.company_id.sudo()"/>
+                    </t>
+                    <t t-else="else">
+                        <t t-set="company" t-value="res_company"/>
+                    </t>
+                </t>
+                <div class="page" style="font-family:'Lato-Reg'">
+                    <!-- Header -->
+                    <t t-call="elmaktab_elrakami_sale.header_template_elmakteb_so"/>
+
+                    <!-- Body -->
+                    <div class="text-center mb-1">
+                        <div class="elmakteb-title border-0">
+                            <t t-if="o.state in ('draft', 'sent')">Quotation</t>
+                            <t t-else="1">Order</t>
+                        </div>
+                    </div>
+
+                    <div class="row mb-1 elmakteb-bg px-1">
+                        <div class="col-6">
+                            <span>Customer</span>
+                        </div>
+                        <div class="col-6">
+                            <span dir="rtl">فاتورة مبدئية</span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <div>
+                                <span t-esc="o.partner_id.name"/>
+                            </div>
+                            <div>
+                                <span><span t-esc="o.partner_id.street"/>,<span t-esc="o.partner_id.city"/>,
+                                    <span t-esc="o.partner_id.country_id.name"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span t-esc="o.partner_id.phone"/>
+                            </div>
+                            <div>
+                                <span t-esc="o.partner_id.email"/>
+                            </div>
+                            <div>
+                                <span t-esc="o.user_id.name"/>
+                            </div>
+                            <div>
+                                <span t-esc="o.client_order_ref"/>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <table class="table table-borderless elmakteb-initial-invoice-table">
+                                <tbody>
+                                    <tr>
+                                        <th style="width:30%">Date</th>
+                                        <td>
+                                            <span t-esc="o.date_order"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <t t-if="o.state in ('draft', 'sent')">
+                                                <span>Quotation #</span>
+                                            </t>
+                                            <t t-else="1">
+                                                <span>Order #</span>
+                                            </t>
+                                        </th>
+                                        <td>
+                                            <span t-esc="o.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Customer ID</th>
+                                        <td>
+                                            <span t-esc="o.partner_id.customer_code"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Due Date</th>
+                                        <td>
+                                            <span t-field="o.payment_term_id"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <br/>
+                    <br/>
+                    <table class="elmakteb-table mb-2 ">
+                        <thead>
+                            <th style="width:5%">Item</th>
+                            <th style="width:15%">Part Number</th>
+                            <th class="text-start">Product Name / Description</th>
+                            <th t-if="o.show_sn_col" style="width:10%">SN #</th>
+                            <th class="text-end" style="width:10%">Qty</th>
+                            <th class="text-end" style="width:12%">Unit Price</th>
+                            <th class="text-end" style="width:14%">Total</th>
+                            <th class="text-end" style="width:14%">Total Tax Incl</th>
+                        </thead>
+                        <tbody>
+                            <t t-set="i" t-value="1"/>
+                            <t t-set="tax_values" t-value="[]"/>
+                            <t t-set="colspan_count" t-value="6"/>
+                            <t t-if="not o.show_part_number_col">
+                                <t t-set="colspan_count" t-value="colspan_count-1"/>
+                            </t>
+                            <t t-if="not o.show_sn_col">
+                                <t t-set="colspan_count" t-value="colspan_count-1"/>
+                            </t>
+                            <t t-foreach="o.order_line" t-as="line">
+                                <tr t-att-class="'bg-200 fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
+                                    <t t-if="not line.display_type">
+                                        <td class="text-center">
+                                            <span t-esc="i"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-if="line.order_id.show_part_number">
+                                                <span t-esc="line.part_number"/>
+                                            </span>
+                                            <span t-else="">
+                                                <span t-esc="line.part_number_encrypted"/>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span t-esc="line.product_id.name"/>
+                                        </td>
+                                        <td t-if="o.show_sn_col">
+                                            <!-- SN -->
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-esc="int(line.product_uom_qty)"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-if="line.print_unit_price" t-esc="line.price_unit"
+                                                    t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                        
+                                        <td class="text-end">
+                                            <span t-if="line.print_unit_price"
+                                                    t-esc="line.price_subtotal"
+                                                    t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                         <td class="text-end">
+                                            <span t-if="line.print_unit_price"
+                                                    t-esc="line.price_total"
+                                                    t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                        <t t-set="i" t-value="i+1"/>
+                                    </t>
+                                    <t t-elif="line.display_type == 'line_section'">
+                                        <td name="td_section_line" t-att-colspan="colspan_count">
+                                            <span t-field="line.name"/>
+                                        </td>
+                                        <t t-set="current_section" t-value="line"/>
+                                        <t t-set="current_subtotal" t-value="0"/>
+                                    </t>
+                                    <t t-elif="line.display_type == 'line_note'">
+                                        <td name="td_note_line" t-att-colspan="colspan_count">
+                                            <span t-field="line.name"/>
+                                        </td>
+                                    </t>
+                                </tr>
+
+
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <div class="row mb-5">
+                        <div class="col-7">
+                            <table class="elmakteb-table">
+                                <thead>
+                                    <th class="text-center text-uppercase">Notes and Instructions</th>
+                                </thead>
+                                <tbod>
+                                    <tr>
+                                        <td>
+                                            <p class="lh-1" style="line-height:1" t-esc="o.note"/>
+                                        </td>
+                                    </tr>
+                                </tbod>
+                            </table>
+                        </div>
+                        <div class="col-5">
+                            <table class="table table-borderless elmakteb-totals-table">
+                                <tbody>
+                                    <tr>
+                                        <td>Sub-Total</td>
+                                        <td class="text-end">
+                                            <span t-esc="o.amount_total"
+                                                    t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                    <!-- <tr>
+                                        <td style="width:50%">Discount</td>
+                                        <td class="text-end">
+                                            <span t-esc="o.amount_discount"
+                                                    t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                    </tr> -->
+                                    <tr>
+                                        <td style="width:50%">Total</td>
+                                        <td class="text-end">
+                                            <span t-esc="o.amount_untaxed"
+                                                    t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                    </tr>
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="page-break-inside: avoid;">
+                        <div class="row">
+                            <div class="col-5 text-end">
+                                <span class="text-decoration-underline">Stamp &amp; Signature</span>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <div>
+                                    <img style="width:50%"
+                                            src="elmaktab_elrakami_sale/static/src/img/signature.png"
+                                            alt="Signature"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Footer -->
+                    <t t-call="elmaktab_elrakami_sale.footer_template_elmakteb_so"/>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <template id="header_template_elmakteb_so">
+        <div class="header">
+            <div class="row wkhtml-center">
+                <div class="col-6">
+                    <img class="w-50" src="elmaktab_elrakami_sale/static/src/img/logo.png" alt="Logo"/>
+                </div>
+                <div class="col-6 text-end">
+                    <span>
+                        Almactab Alraqami<br />
+                        193 Al Nasser Street<br />
+                        Opposite Broadcast Building<br />
+                        00218916640444<br />
+                        Tripoli - Libya
+                    </span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="footer_template_elmakteb_so">
+        <div class="footer">
+            <div class="row wkhtml-center text-center">
+                <div class="col-3">
+                    <img style="width:120px" src="/elmaktab_elrakami_sale/static/src/img/Xerox.png" alt="Xerox"/>
+                </div>
+                <div class="col-3">
+                    <img style="width:120px" src="/elmaktab_elrakami_sale/static/src/img/Kardex.png" alt="Kardex"/>
+                </div>
+                <div class="col-3">
+                    <img style="width:120px" src="/elmaktab_elrakami_sale/static/src/img/Canon.png" alt="Canon"/>
+                </div>
+                <div class="col-3">
+                    <img style="width:120px" src="/elmaktab_elrakami_sale/static/src/img/Duplo.png" alt="Duplo"/>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <record id="elmakteb_paperformat" model="report.paperformat">
+        <field name="name">El Makteb Paperformat</field>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="dpi" eval="90"/>
+        <field name="margin_top" eval="40"/>
+        <field name="margin_right" eval="7"/>
+        <field name="margin_bottom" eval="25"/>
+        <field name="margin_left" eval="7"/>
+        <field name="header_spacing" eval="35"/>
+    </record>
+
+    <record id="action_report_elmakteb_so" model="ir.actions.report">
+        <field name="name">Quotation / Order (El-Makteb)</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">elmaktab_elrakami_sale.report_elmakteb_so_document</field>
+        <field name="report_file">elmaktab_elrakami_sale.report_elmakteb_so_document</field>
+        <field name="print_report_name">(object.state in ('draft', 'sent') and 'Quotation - %s' % (object.name)) or 'Order - %s' % (object.name)
+        </field>
+        <field name="binding_model_id" ref="model_sale_order"/>
+        <field name="paperformat_id" ref="elmaktab_elrakami_sale.elmakteb_paperformat"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>
