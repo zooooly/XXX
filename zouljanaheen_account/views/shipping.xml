@@ -1,0 +1,237 @@
+<odoo>
+    <data>
+        <record id="sale_ship_form" model="ir.ui.view">
+            <field name="name">ship</field>
+            <field name="model">sale.shipping</field>
+            <field name="arch" type="xml">
+                <form string="">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="sale_shipo_tree" model="ir.ui.view">
+            <field name="name">Ship</field>
+            <field name="model">sale.shipping</field>
+            <field name="arch" type="xml">
+                <tree string="">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="sale_ship_action" model="ir.actions.act_window">
+            <field name="name">Shipping</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.shipping</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                <!-- Add Text Here -->
+              </p><p>
+                <!-- More details about what a user can do with this object will be OK -->
+              </p>
+            </field>
+        </record>
+
+
+         <record id="sale_delivery_form" model="ir.ui.view">
+            <field name="name">delivery</field>
+            <field name="model">sale.delivery</field>
+            <field name="arch" type="xml">
+                <form string="">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="sale_delivery_tree" model="ir.ui.view">
+            <field name="name">delivery</field>
+            <field name="model">sale.delivery</field>
+            <field name="arch" type="xml">
+                <tree string="">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="sale_delivery_action" model="ir.actions.act_window">
+            <field name="name">delivery</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.delivery</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                <!-- Add Text Here -->
+              </p><p>
+                <!-- More details about what a user can do with this object will be OK -->
+              </p>
+            </field>
+        </record>
+
+
+         <record id="sale_warranty_form" model="ir.ui.view">
+            <field name="name">Warranty</field>
+            <field name="model">sale.warranty</field>
+            <field name="arch" type="xml">
+                <form string="">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="sale_warranty_tree" model="ir.ui.view">
+            <field name="name">Warranty</field>
+            <field name="model">sale.warranty</field>
+            <field name="arch" type="xml">
+                <tree string="">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="sale_warranty_action" model="ir.actions.act_window">
+            <field name="name">Warranty</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.warranty</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                <!-- Add Text Here -->
+              </p><p>
+                <!-- More details about what a user can do with this object will be OK -->
+              </p>
+            </field>
+        </record>
+
+
+         <record id="sale_package_from" model="ir.ui.view">
+            <field name="name">sale package</field>
+            <field name="model">sale.package</field>
+            <field name="arch" type="xml">
+                <form string="">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="tree_sale_package" model="ir.ui.view">
+            <field name="name">Sale package</field>
+            <field name="model">sale.package</field>
+            <field name="arch" type="xml">
+                <tree string="">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_sale_package" model="ir.actions.act_window">
+            <field name="name">Sale package</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.package</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                <!-- Add Text Here -->
+              </p><p>
+                <!-- More details about what a user can do with this object will be OK -->
+              </p>
+            </field>
+        </record>
+
+
+
+         <record id="sale_origin_form" model="ir.ui.view">
+            <field name="name">Origin</field>
+            <field name="model">sale.origin</field>
+            <field name="arch" type="xml">
+                <form string="">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="sale_origin_tree" model="ir.ui.view">
+            <field name="name">sale origin</field>
+            <field name="model">sale.origin</field>
+            <field name="arch" type="xml">
+                <tree string="">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="sale_origin_action" model="ir.actions.act_window">
+            <field name="name">Origin</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.origin</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                <!-- Add Text Here -->
+              </p><p>
+                <!-- More details about what a user can do with this object will be OK -->
+              </p>
+            </field>
+        </record>
+
+
+
+         <record id="sale_validaty_form" model="ir.ui.view">
+            <field name="name"> Validity</field>
+            <field name="model">sale.validaty</field>
+            <field name="arch" type="xml">
+                <form string="">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="sale_validity_tree" model="ir.ui.view">
+            <field name="name">Validity</field>
+            <field name="model">sale.validaty</field>
+            <field name="arch" type="xml">
+                <tree string="">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_sale_validity" model="ir.actions.act_window">
+            <field name="name">Sale Validity</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.validaty</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                <!-- Add Text Here -->
+              </p><p>
+                <!-- More details about what a user can do with this object will be OK -->
+              </p>
+            </field>
+        </record>
+
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="categ_offer_validity" name="Sale Validity" parent="sale.menu_sale_config" action="action_sale_validity" sequence="20"/>
+        <menuitem id="categ_sale_origin" name="Origin" parent="sale.menu_sale_config" action="sale_origin_action" sequence="20"/>
+        <menuitem id="categ_sale_package" name="Sale package" parent="sale.menu_sale_config" action="action_sale_package" sequence="20"/>
+        <menuitem id="categ_sale_ship" name="Sale  Shipping" parent="sale.menu_sale_config" action="sale_ship_action" sequence="20"/>
+
+               <menuitem id="categ_sale_warranty" name="Sale  Warranty" parent="sale.menu_sale_config" action="sale_warranty_action" sequence="20"/>
+                           <menuitem id="categ_sale_delivery" name="Sale  delivery" parent="sale.menu_sale_config" action="sale_delivery_action" sequence="20"/>
+
+    </data>
+
+</odoo>
